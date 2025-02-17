@@ -1,11 +1,16 @@
 import tkinter as tk
 from tkinter import ttk, messagebox, PhotoImage, filedialog
-import q2query, q2rcon
-import configparser, os, threading, subprocess
+import q2query
+import q2rcon
+import configparser
+import os
+import threading
+import subprocess
+import datetime
 
-# --- Configuración de archivos ---
 CONFIG_FILE = "servers.ini"
 APP_CONFIG_FILE = "config.ini"
+LOG_FILE = "logs.txt"
 
 def load_config(file_path, default_section=None):
     config = configparser.ConfigParser()
@@ -19,57 +24,77 @@ def save_config(config, file_path):
     with open(file_path, "w") as f:
         config.write(f)
 
-# --- Cargar configuraciones ---
+# Cargar configuraciones
 rcon_config = load_config(CONFIG_FILE)
 app_config = load_config(APP_CONFIG_FILE, "General")
 selected_server_admin = None
 
-# --- Ventana de Configuración de la Aplicación ---
+# Variable global para el widget de logs (se asigna en create_gui)
+log_text_widget = None
+
+# Función para escribir logs con fecha/hora, guardar en archivo y mostrarlos en la pestaña de Logs.
+def write_log(msg):
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    log_entry = f"{timestamp} - {msg}\n"
+    try:
+        with open(LOG_FILE, "a") as f:
+            f.write(log_entry)
+    except Exception as e:
+        print(f"Error al escribir log: {e}")
+    if log_text_widget:
+        log_text_widget.insert(tk.END, log_entry)
+        log_text_widget.see(tk.END)
+
+# Ventana de Configuraciones de la aplicación
 def open_config_window():
-    win = tk.Toplevel()
-    win.title("Configuraciones de la aplicación")
-    win.geometry("400x200")
+    config_win = tk.Toplevel()
+    config_win.title("Configuraciones de la aplicación")
+    config_win.geometry("400x200")
+    
     current_exe = app_config["General"].get("executable", "No configurado")
     
-    tk.Label(win, text="Ejecutable actual:", font=("Arial", 12, "bold")).pack(pady=(10,5))
-    exe_label = tk.Label(win, text=current_exe, font=("Arial", 10))
+    tk.Label(config_win, text="Ejecutable actual:", font=("Arial", 12, "bold")).pack(pady=(10,5))
+    exe_label = tk.Label(config_win, text=current_exe, font=("Arial", 10))
     exe_label.pack(pady=(0,10))
     
     def select_executable():
-        path = filedialog.askopenfilename(title="Seleccionar ejecutable", 
-                                          filetypes=[("Executable files", "*.exe;*.bat;*.cmd;*.*")])
-        if path:
-            app_config["General"]["executable"] = path
+        exe_path = filedialog.askopenfilename(
+            title="Seleccionar ejecutable", 
+            filetypes=[("Executable files", "*.exe;*.bat;*.cmd;*.*")]
+        )
+        if exe_path:
+            app_config["General"]["executable"] = exe_path
             save_config(app_config, APP_CONFIG_FILE)
-            exe_label.config(text=path)
-            messagebox.showinfo("Información", f"Ejecutable guardado:\n{path}")
+            exe_label.config(text=exe_path)
+            messagebox.showinfo("Información", f"Ejecutable guardado:\n{exe_path}")
     
-    tk.Button(win, text="Seleccionar ejecutable", command=select_executable).pack(pady=10)
+    tk.Button(config_win, text="Seleccionar ejecutable", command=select_executable).pack(pady=10)
 
-# --- Ventana Administrador de Servidores ---
+# Ventana Administrador de Servidores
 def open_admin_window():
     global rcon_config
-    win = tk.Toplevel()
-    win.title("Administrador de Servidores")
-    win.geometry("600x400")
+    admin_win = tk.Toplevel()
+    admin_win.title("Administrador de Servidores")
+    admin_win.geometry("600x400")
     
-    # Cargar iconos (32x32)
+    # Iconos 32x32
     add_icon = PhotoImage(file="iconos/icons8-add-server-32.png").subsample(2,2)
     edit_icon = PhotoImage(file="iconos/icons8-edit-server-32.png").subsample(2,2)
     delete_icon = PhotoImage(file="iconos/icons8-delete-server-32.png").subsample(2,2)
     
-    # Panel superior: botones para agregar, editar y borrar
-    top_frame = tk.Frame(win)
+    top_frame = tk.Frame(admin_win)
     top_frame.pack(fill="x", padx=5, pady=5)
-    tk.Button(top_frame, text="Agregar Servidor", image=add_icon, compound='left', command=lambda: server_dialog(win, "Agregar Servidor", None, add=True)).pack(side="left", padx=5)
-    tk.Button(top_frame, text="Editar Servidor", image=edit_icon, compound='left', command=lambda: server_dialog(win, "Editar Servidor", tree.focus())).pack(side="left", padx=5)
-    tk.Button(top_frame, text="Eliminar Servidor", image=delete_icon, compound='left', command=lambda: delete_server(tree)).pack(side="left", padx=5)
-    # Conservar las referencias
+    tk.Button(top_frame, text="Agregar Servidor", image=add_icon, compound='left',
+              command=lambda: server_dialog(admin_win, None, add=True)).pack(side="left", padx=5)
+    tk.Button(top_frame, text="Editar Servidor", image=edit_icon, compound='left',
+              command=lambda: server_dialog(admin_win, tree.focus(), add=False)).pack(side="left", padx=5)
+    tk.Button(top_frame, text="Eliminar Servidor", image=delete_icon, compound='left',
+              command=lambda: delete_server(tree)).pack(side="left", padx=5)
+    # Conservar referencias
     for btn in top_frame.winfo_children():
         btn.image = btn.cget("image")
     
-    # Treeview para mostrar configuraciones RCON
-    tree_frame = tk.Frame(win)
+    tree_frame = tk.Frame(admin_win)
     tree_frame.pack(fill="both", expand=True, padx=5, pady=5)
     cols = ("IP", "Port", "RCON Password")
     tree = ttk.Treeview(tree_frame, columns=cols, show="headings")
@@ -97,12 +122,11 @@ def open_admin_window():
             save_config(rcon_config, CONFIG_FILE)
             update_admin_tree()
     
-    # Función genérica para diálogo de agregar/editar servidor
-    def server_dialog(parent, title, sec, add=False):
+    def server_dialog(parent, sec, add=False):
         dlg = tk.Toplevel(parent)
-        dlg.title(title)
-        for i, text in enumerate(["IP", "Port", "RCON Password"]):
-            tk.Label(dlg, text=text).grid(row=i, column=0, padx=5, pady=5)
+        dlg.title("Agregar Servidor" if add else "Editar Servidor")
+        for i, txt in enumerate(["IP", "Port", "RCON Password"]):
+            tk.Label(dlg, text=txt).grid(row=i, column=0, padx=5, pady=5)
         e_ip = tk.Entry(dlg)
         e_port = tk.Entry(dlg)
         e_pass = tk.Entry(dlg, show="*")
@@ -142,9 +166,9 @@ def open_admin_window():
         tk.Button(dlg, text="Guardar", command=save_data).grid(row=3, column=0, columnspan=2, pady=10)
     
     update_admin_tree()
-    win.mainloop()
+    admin_win.mainloop()
 
-# --- Función para enviar comandos RCON ---
+# Función para enviar el comando RCON "status"
 def send_command():
     global selected_server_admin
     if not selected_server_admin:
@@ -158,15 +182,18 @@ def send_command():
         )
         resp = conn.send("status")
         messagebox.showinfo("Respuesta RCON", resp)
+        write_log(f"Comando 'status' enviado al servidor {selected_server_admin['ip']}:{selected_server_admin['port']}")
     except Exception as e:
         messagebox.showerror("Error", f"Error al enviar comando: {e}")
+        write_log(f"Error al enviar 'status': {e}")
 
-# --- Función principal: GUI ---
+# Función principal: GUI
 def create_gui(servers):
-    global selected_server_admin, rcon_config, app_config
+    global selected_server_admin, rcon_config, app_config, server_tree, log_text_widget
     root = tk.Tk()
     root.geometry("1200x600")
     root.title("RCON tool para ddaychile")
+    root.iconphoto(False, tk.PhotoImage(file="iconos/icono_app.png"))
     
     # Menú superior
     menu_bar = tk.Menu(root)
@@ -180,6 +207,7 @@ def create_gui(servers):
         nonlocal servers
         servers = q2query.get_server_data()
         update_server_tree(servers)
+        write_log("Lista de servidores refrescada")
     app_menu.add_command(label="Refrescar lista", command=refresh_server_list)
     
     config_icon = PhotoImage(file="iconos/icons8-ajustes-32.png").subsample(2,2)
@@ -202,7 +230,6 @@ def create_gui(servers):
     
     # --- Treeview de Servidores ---
     green_icon = PhotoImage(file="iconos/green_ticket.png").subsample(2,2)
-    global server_tree
     server_tree = ttk.Treeview(server_frame, columns=("Hostname", "IP", "Game", "Map", "Players"), show="tree headings")
     server_tree.heading("#0", text="RCON")
     server_tree.column("#0", width=50)
@@ -210,9 +237,9 @@ def create_gui(servers):
         server_tree.heading(col, text=col)
         server_tree.column(col, width=250 if col=="Hostname" else 100)
     
-    def update_server_tree(server_list):
+    def update_server_tree(srv_list):
         server_tree.delete(*server_tree.get_children())
-        for i, srv in enumerate(server_list):
+        for i, srv in enumerate(srv_list):
             try:
                 ip, port = q2query.parse_quake2_url(srv["IP"])
                 sec = f"{ip}:{port}"
@@ -249,7 +276,7 @@ def create_gui(servers):
     player_tree.configure(yscroll=p_scroll.set)
     p_scroll.pack(side="right", fill="y")
     
-    # Notebook con tres pestañas: Acciones, Consola y Logs
+    # Notebook: Acciones, Consola y Logs
     icon_acciones = PhotoImage(file="iconos/icons8-server-upload-32.png").subsample(2,2)
     icon_consola = PhotoImage(file="iconos/icons8-consola-32.png").subsample(2,2)
     icon_logs = PhotoImage(file="iconos/icons8-editar-propiedad-32.png").subsample(2,2)
@@ -262,7 +289,7 @@ def create_gui(servers):
     notebook.add(tab_logs, text="Logs", image=icon_logs, compound='left')
     notebook.pack(expand=True, fill="both")
     
-    # --- Pestaña de Acciones ---
+    # --- Pestaña Acciones ---
     act_frame = ttk.LabelFrame(tab_acciones, text="Enviar Comando RCON")
     act_frame.pack(padx=10, pady=10, fill="x")
     icon_send = PhotoImage(file="iconos/icons8-lleno-enviado-30.png").subsample(2,2)
@@ -285,13 +312,17 @@ def create_gui(servers):
     
     def run_console_command(cmd):
         try:
-            conn = q2rcon.Q2RConnection(host=selected_server_admin["ip"],
-                                        port=selected_server_admin["port"],
-                                        password=selected_server_admin["password"])
+            conn = q2rcon.Q2RConnection(
+                host=selected_server_admin["ip"],
+                port=selected_server_admin["port"],
+                password=selected_server_admin["password"]
+            )
             out = conn.send(cmd)
             root.after(0, lambda: append_to_console(out))
+            write_log(f"Consola: comando '{cmd}' ejecutado")
         except Exception as e:
             root.after(0, lambda: append_to_console(f"Error: {e}"))
+            write_log(f"Consola: error al ejecutar '{cmd}': {e}")
     
     def send_console_command():
         cmd = cons_entry.get().strip()
@@ -306,7 +337,26 @@ def create_gui(servers):
     
     tk.Button(cons_input, text="Enviar", command=send_console_command, bg="black", fg="lime", font=("Courier New", 10)).pack(side="left")
     
-    # --- Eventos en el Treeview ---
+    # --- Pestaña Logs ---
+    log_frame = tk.Frame(tab_logs, bg="#333")
+    log_frame.pack(expand=True, fill="both", padx=5, pady=5)
+    log_text = tk.Text(log_frame, bg="#333", fg="white", font=("Arial", 10), wrap="word")
+    log_text.pack(expand=True, fill="both", padx=5, pady=5)
+    tk.Button(tab_logs, text="Limpiar Logs", command=lambda: log_text.delete("1.0", tk.END)).pack(pady=5)
+    
+    # Asignar el widget de logs a la variable global para usarlo en write_log
+    global log_text_widget
+    log_text_widget = log_text
+    # Cargar contenido previo de logs.txt, si existe
+    if os.path.exists(LOG_FILE):
+        try:
+            with open(LOG_FILE, "r") as f:
+                content = f.read()
+            log_text.insert(tk.END, content)
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudieron cargar los logs: {e}")
+    
+    # --- Eventos en el Treeview de Servidores ---
     def on_select(event):
         global selected_server_admin
         sel = server_tree.selection()
@@ -323,6 +373,7 @@ def create_gui(servers):
                     selected_server_admin = None
             except Exception:
                 selected_server_admin = None
+            write_log(f"Seleccionado servidor: {srv['Hostname']} ({srv['IP']})")
     
     server_tree.bind("<<TreeviewSelect>>", on_select)
     
@@ -342,6 +393,7 @@ def create_gui(servers):
                 return
             try:
                 subprocess.Popen([exe_path, "+game", "dday", "+connect", f"{ip}:{port}"])
+                write_log(f"Ejecución: {exe_path} +game dday +connect {ip}:{port}")
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo ejecutar el ejecutable: {e}")
     
