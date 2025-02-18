@@ -299,7 +299,7 @@ def create_gui(servers):
     cons_frame = tk.Frame(tab_consola, width=800, height=200, bg="black")
     cons_frame.pack(padx=5, pady=5)
     cons_frame.pack_propagate(False)
-    cons_text = tk.Text(cons_frame, bg="black", fg="lime", insertbackground="white", font=("Courier New", 10))
+    cons_text = tk.Text(cons_frame, bg="black", fg="lime", insertbackground="white", font=("Courier New", 10), state=tk.DISABLED)
     cons_scroll = ttk.Scrollbar(cons_frame, orient='vertical', command=cons_text.yview)
     cons_text.configure(yscrollcommand=cons_scroll.set)
     cons_scroll.pack(side='right', fill='y')
@@ -311,8 +311,10 @@ def create_gui(servers):
     cons_entry.pack(side="left", fill="x", expand=True, padx=(0,5))
     
     def append_to_console(text):
+        cons_text.config(state=tk.NORMAL)
         cons_text.insert(tk.END, f"{text}\n")
         cons_text.see(tk.END)
+        cons_text.config(state=tk.DISABLED)
     
     def run_console_command(cmd):
         try:
