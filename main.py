@@ -300,10 +300,14 @@ def create_gui(servers):
     cons_frame.pack(padx=5, pady=5)
     cons_frame.pack_propagate(False)
     cons_text = tk.Text(cons_frame, bg="black", fg="lime", insertbackground="white", font=("Courier New", 10))
+    cons_scroll = ttk.Scrollbar(cons_frame, orient='vertical', command=cons_text.yview)
+    cons_text.configure(yscrollcommand=cons_scroll.set)
+    cons_scroll.pack(side='right', fill='y')
     cons_text.pack(expand=True, fill="both", padx=5, pady=5)
     cons_input = tk.Frame(tab_consola, bg="black")
     cons_input.pack(fill="x", padx=5, pady=5)
     cons_entry = tk.Entry(cons_input, bg="black", fg="lime", insertbackground="white", font=("Courier New", 10))
+    cons_entry.bind("<Return>", lambda event: send_console_command())
     cons_entry.pack(side="left", fill="x", expand=True, padx=(0,5))
     
     def append_to_console(text):
