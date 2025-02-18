@@ -31,3 +31,17 @@
 2025-02-17 21:21:25 - Consola: comando 'status' ejecutado
 2025-02-17 21:21:28 - Consola: comando 'status' ejecutado
 2025-02-17 21:21:31 - Consola: comando 'status' ejecutado
+2025-02-17 21:26:31 - Seleccionado servidor: MR Publico I D-Day Server by Torin (45.239.216.175:27912)
+2025-02-17 21:26:38 - Consola: comando 'status' ejecutado
+2025-02-17 21:26:40 - Seleccionado servidor: Server de Playerba (45.239.216.175:27914)
+2025-02-17 21:26:41 - Seleccionado servidor: MR Publico I D-Day Server by Torin (45.239.216.175:27912)
+2025-02-17 21:26:42 - Seleccionado servidor: D-Day Chile Publico II - BOT'S (38.7.207.148:27930)
+2025-02-17 21:26:46 - Seleccionado servidor: Dirk's D-Day+Bots ddaydev.com (104.48.71.1:27910)
+2025-02-17 21:26:47 - Seleccionado servidor: D-Day Chile Publico II - BOT'S (38.7.207.148:27930)
+2025-02-17 21:26:48 - Seleccionado servidor: Dirk's D-Day+Bots ddaydev.com (104.48.71.1:27910)
+2025-02-17 21:26:48 - Seleccionado servidor: D-Day Chile Publico II - BOT'S (38.7.207.148:27930)
+2025-02-17 21:26:49 - Seleccionado servidor: Dirk's D-Day+Bots ddaydev.com (104.48.71.1:27910)
+2025-02-17 21:26:50 - Seleccionado servidor: D-Day Chile Publico II - BOT'S (38.7.207.148:27930)
+2025-02-17 21:28:35 - Seleccionado servidor: Dirk's D-Day+Bots ddaydev.com (104.48.71.1:27910)
+2025-02-17 21:31:54 - Seleccionado servidor: MR Publico I D-Day Server by Torin (45.239.216.175:27912)
+2025-02-17 21:31:55 - Información copiada: MR Publico I D-Day Server by Torin - 45.239.216.175:27912

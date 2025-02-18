@@ -45,17 +45,60 @@ def write_log(msg):
         log_text_widget.insert(tk.END, log_entry)
         log_text_widget.see(tk.END)
 
+def get_bg_color():
+    # Si el modo oscuro está activado en el config, devuelve "#212121"; en caso contrario, usa el color por defecto.
+    try:
+        dark = app_config["General"].getboolean("dark_mode", False)
+    except Exception:
+        dark = False
+    return "#212121" if dark else None  # None deja el valor por defecto
+
+def apply_dark_mode_styles():
+    if app_config["General"].getboolean("dark_mode", False):
+        style = ttk.Style()
+        style.theme_use("clam")  # Usamos el tema "clam" para facilitar la personalización
+        style.configure("Treeview",
+                        background="#303030",
+                        foreground="white",
+                        fieldbackground="#303030")
+        style.configure("Treeview.Heading",
+                        background="#303030",
+                        foreground="white")
+
 # Ventana de Configuraciones de la aplicación
 def open_config_window():
     config_win = tk.Toplevel()
     config_win.title("Configuraciones de la aplicación")
     config_win.geometry("400x200")
+    # Aplicar el color de fondo si el modo oscuro está activado.
+    bg_color = get_bg_color()
+    if bg_color:
+        config_win.config(bg=bg_color)
+    apply_dark_mode_styles()
     
     current_exe = app_config["General"].get("executable", "No configurado")
     
-    tk.Label(config_win, text="Ejecutable actual:", font=("Arial", 12, "bold")).pack(pady=(10,5))
-    exe_label = tk.Label(config_win, text=current_exe, font=("Arial", 10))
+    # Las etiquetas usarán el mismo color de fondo
+    tk.Label(config_win, text="Ejecutable actual:", font=("Arial", 12, "bold"), bg=bg_color).pack(pady=(10,5))
+    exe_label = tk.Label(config_win, text=current_exe, font=("Arial", 10), bg=bg_color)
     exe_label.pack(pady=(0,10))
+    
+    # Variable para el Checkbutton (modo oscuro)
+    dark_mode_var = tk.BooleanVar(value=app_config["General"].getboolean("dark_mode", False))
+    
+    def toggle_dark_mode():
+        value = dark_mode_var.get()
+        app_config["General"]["dark_mode"] = str(value)
+        save_config(app_config, APP_CONFIG_FILE)
+        new_bg = "#212121" if value else None
+        config_win.config(bg=new_bg)
+        exe_label.config(bg=new_bg)
+        # Se puede notificar al usuario para reiniciar la aplicación para que se apliquen en todas las ventanas.
+        messagebox.showinfo("Información", "Modo oscuro actualizado. Reinicia la aplicación para aplicar en todas las ventanas.")
+    
+    # El Checkbutton se muestra con el color de fondo actual
+    dark_mode_check = tk.Checkbutton(config_win, text="Activar Modo Oscuro", variable=dark_mode_var, command=toggle_dark_mode, bg=bg_color)
+    dark_mode_check.pack(pady=(0,10))
     
     def select_executable():
         exe_path = filedialog.askopenfilename(
@@ -76,6 +119,10 @@ def open_admin_window():
     admin_win = tk.Toplevel()
     admin_win.title("Administrador de Servidores")
     admin_win.geometry("600x400")
+    bg = get_bg_color()
+    if bg:
+        admin_win.config(bg=bg)
+    apply_dark_mode_styles()
     
     # Iconos 32x32
     add_icon = PhotoImage(file="iconos/icons8-add-server-32.png").subsample(2,2)
@@ -192,8 +239,13 @@ def create_gui(servers):
     global selected_server_admin, rcon_config, app_config, server_tree, log_text_widget
     root = tk.Tk()
     root.geometry("1200x600")
+    bg = get_bg_color()
+    if bg:
+        root.config(bg=bg)
     root.title("RCON tool para ddaychile")
+
     root.iconphoto(False, tk.PhotoImage(file="iconos/icono_app.png"))
+    apply_dark_mode_styles()
     
     # Menú superior
     menu_bar = tk.Menu(root)
@@ -402,11 +454,24 @@ def create_gui(servers):
                 write_log(f"Ejecución: {exe_path} +game dday +connect {ip}:{port}")
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo ejecutar el ejecutable: {e}")
-    
+
+    def copy_selected_server_info(event):
+        sel = server_tree.selection()
+        if sel:
+            idx = int(sel[0])
+            srv = servers[idx]
+            info = f"{srv['Hostname']} - {srv['IP']}"
+            root.clipboard_clear()
+            root.clipboard_append(info)
+            write_log(f"Información copiada: {info}")
+
+    server_tree.bind("<Control-c>", copy_selected_server_info)
     server_tree.bind("<Double-1>", on_double_click)
     
     root.mainloop()
 
 if __name__ == "__main__":
     server_list = q2query.get_server_data()
+    # apply_dark_mode_styles()
     create_gui(server_list)
+
