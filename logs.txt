@@ -1,0 +1,33 @@
+2025-02-17 18:25:39 - Seleccionado servidor: D-Day Chile: Duelo a muerte con cuchillos [CALVERA.SHACRA.CL] (152.230.104.85:1944)
+2025-02-17 18:25:52 - Seleccionado servidor: D-Day Chile Torneo 3x3 2025 - PUBLICO [CALVERA.SHACRA.CL] (152.230.104.85:1946)
+2025-02-17 18:25:53 - Seleccionado servidor: D-Day Chile: Duelo a muerte con cuchillos [CALVERA.SHACRA.CL] (152.230.104.85:1944)
+2025-02-17 18:25:56 - Lista de servidores refrescada
+2025-02-17 18:29:34 - Seleccionado servidor: D-Day Chile Torneo 3x3 2025 - PUBLICO [CALVERA.SHACRA.CL] (152.230.104.85:1946)
+2025-02-17 18:29:35 - Seleccionado servidor: D-Day Chile: Duelo a muerte con cuchillos [CALVERA.SHACRA.CL] (152.230.104.85:1944)
+2025-02-17 18:29:37 - Seleccionado servidor: D-Day Chile Torneo 3x3 2025 - PUBLICO [CALVERA.SHACRA.CL] (152.230.104.85:1946)
+2025-02-17 18:29:37 - Seleccionado servidor: D-Day Chile: Duelo a muerte con cuchillos [CALVERA.SHACRA.CL] (152.230.104.85:1944)
+2025-02-17 18:29:40 - Lista de servidores refrescada
+2025-02-17 18:29:42 - Seleccionado servidor: D-Day Chile Torneo 3x3 2025 - PUBLICO [CALVERA.SHACRA.CL] (152.230.104.85:1946)
+2025-02-17 20:20:03 - Seleccionado servidor: D-Day Chile Publico II - BOT'S (38.7.207.148:27930)
+2025-02-17 21:03:53 - Seleccionado servidor: D-Day Chile Publico II - BOT'S (38.7.207.148:27930)
+2025-02-17 21:06:15 - Lista de servidores refrescada
+2025-02-17 21:06:48 - Seleccionado servidor: D-Day Chile Publico II - BOT'S (38.7.207.148:27930)
+2025-02-17 21:07:46 - Lista de servidores refrescada
+2025-02-17 21:08:45 - Seleccionado servidor: MR Publico I D-Day Server by Torin (45.239.216.175:27912)
+2025-02-17 21:09:12 - Lista de servidores refrescada
+2025-02-17 21:09:14 - Seleccionado servidor: MR Publico I D-Day Server by Torin (45.239.216.175:27912)
+2025-02-17 21:09:21 - Consola: comando 'status' ejecutado
+2025-02-17 21:11:15 - Seleccionado servidor: D-Day Chile Publico II - BOT'S (38.7.207.148:27930)
+2025-02-17 21:11:29 - Seleccionado servidor: MR Publico I D-Day Server by Torin (45.239.216.175:27912)
+2025-02-17 21:11:43 - Consola: comando 'say hola' ejecutado
+2025-02-17 21:14:57 - Seleccionado servidor: MR Publico I D-Day Server by Torin (45.239.216.175:27912)
+2025-02-17 21:15:04 - Consola: comando 'status' ejecutado
+2025-02-17 21:17:09 - Seleccionado servidor: MR Publico I D-Day Server by Torin (45.239.216.175:27912)
+2025-02-17 21:17:14 - Consola: comando 'status' ejecutado
+2025-02-17 21:17:17 - Consola: comando 'status' ejecutado
+2025-02-17 21:17:20 - Consola: comando 'status' ejecutado
+2025-02-17 21:17:24 - Consola: comando 'status' ejecutado
+2025-02-17 21:21:17 - Seleccionado servidor: MR Publico I D-Day Server by Torin (45.239.216.175:27912)
+2025-02-17 21:21:25 - Consola: comando 'status' ejecutado
+2025-02-17 21:21:28 - Consola: comando 'status' ejecutado
+2025-02-17 21:21:31 - Consola: comando 'status' ejecutado
